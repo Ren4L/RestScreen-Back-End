@@ -1,12 +1,12 @@
 const express = require('express');
 const cors = require('cors');
-const userRouter = require('./routes/userRouter');
+const dotenv = require('dotenv').config();
+const userRouter = require('./domain/routes/userRouter');
 
 const app = express();
 
-app.use(express.json());
 app.use(cors());
+app.use(express.json());
 
-app.use("/users", userRouter);
-
-app.listen(process.env.PORT, () => console.log("Server started!"));
+app.use("/api/user", userRouter);
+app.listen(process.env.PORT, () => console.log(`Server start at port = ${process.env.PORT}`));
