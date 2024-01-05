@@ -1,5 +1,6 @@
-const ApiError = require("../utils/exceptions/apiError");
-const TokenController = require("../controllers/tokenController");
+const ApiError = require("#utils/exceptions/apiError");
+const TokenController = require("#controllers/tokenController");
+const Log = require("#log");
 
 module.exports = function (req, res, next) {
     try {

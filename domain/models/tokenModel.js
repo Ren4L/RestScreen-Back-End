@@ -1,4 +1,4 @@
-const Token = require("../../db/models/index").Token;
+const Token = require("#db/models/index").Token;
 module.exports = {
     create: async (user_id, refresh_token) => {
         let user = (await Token.findOne({where:{user_id}}));
