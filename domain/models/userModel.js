@@ -21,4 +21,13 @@ module.exports = {
     findId: async (id) => {
       return (await User.findOne({where:{id}}))?.dataValues;
     },
+
+    editOneColumn: async (id, nameColumn, value) => {
+        let user = await User.findOne({where:{id}});
+        if (!user?.dataValues?.id)
+            throw ApiError.BadRequest(["Error.serverError"], "[UserController]");
+        await user.update({[nameColumn]: value});
+        await user.save();
+        return user.dataValues;
+    }
 };

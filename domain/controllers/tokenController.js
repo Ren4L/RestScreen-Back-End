@@ -6,19 +6,16 @@ require('dotenv').config();
 
 module.exports = {
     generateTokens(payload){
-        Log.info(payload, "[TokenController] Start generate tokens");
         const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, {expiresIn: '60m'});
         Log.info(`[TokenController] AccessToken: ${accessToken}`)
         const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {expiresIn: '30d'});
         Log.info(`[TokenController] RefreshToken: ${refreshToken}`)
-        Log.info("[TokenController] End generate tokens");
         return {accessToken, refreshToken};
     },
 
     async saveToken(user_id, refresh_token){
         Log.info(`[TokenController] Start save token\n UserId: ${user_id}\n RefreshToken: ${refresh_token}`);
         await tokenModel.create(user_id, refresh_token);
-        Log.info("[TokenController] End save token");
     },
 
     async deleteToken(refresh_token){
@@ -26,7 +23,6 @@ module.exports = {
         if (!refresh_token)
             throw ApiError.UnauthorizedError();
         let deleteToken = await tokenModel.delete(refresh_token);
-        Log.info("[TokenController] End delete token");
         return deleteToken;
     },
 
@@ -38,7 +34,6 @@ module.exports = {
         const tokenIncludeDB = tokenModel.find(refresh_token);
         if(!userData || !tokenIncludeDB)
             throw ApiError.UnauthorizedError();
-        Log.info(userData, "[TokenController] End refresh token");
         return userData;
     },
 

@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const fileUpload = require('express-fileupload');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const Router = require('#routes/index');
@@ -14,6 +15,7 @@ app.use(cors({
     origin: process.env.FRONT_END_DOMAIN
 }));
 app.use(express.json());
+app.use(fileUpload({}));
 app.use(cookieParser());
 app.use("/api", Router);
 app.use(ErrorMiddleware);

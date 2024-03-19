@@ -1,4 +1,5 @@
 const userModel = require("#models/userModel");
+const linkModel = require("#models/linkModel");
 const UserValidator = require("#utils/validators/userValidator");
 const tokenController = require("#controllers/tokenController");
 const ApiError = require("#utils/exceptions/apiError");
@@ -7,7 +8,6 @@ const Log = require('#log');
 module.exports = {
     register: async (req, res, next) => {
         try{
-            Log.info(req.body, "[UserController] Start user registration");
             let salt = Math.round(100 - 0.5 + Math.random() * (1000 - 100 + 1));
             const validator = new UserValidator(req.body, {nickname: ["nickname"], email:["email"], password: ["password", "passwordCompare:password:passwordRepeat"]});
 
@@ -19,7 +19,6 @@ module.exports = {
             await tokenController.saveToken(user.id, tokens.refreshToken);
 
             res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30*24*60*60*1000, httpOnly:true})
-            Log.info("[UserController] End user registration");
             res.status(201).json({...user.dataValues, password: undefined, salt: undefined, accessToken: tokens.accessToken});
         }
         catch (e){
@@ -29,7 +28,6 @@ module.exports = {
 
     auth: async (req, res, next) => {
         try{
-            Log.info(req.body, "[UserController] Start user authorization");
             const validator = new UserValidator(req.body, {email:["email"], password: ["password"]});
 
             if (validator.errors.length)
@@ -40,7 +38,6 @@ module.exports = {
             await tokenController.saveToken(user.id, tokens.refreshToken);
 
             res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30*24*60*60*1000, httpOnly:true})
-            Log.info("[UserController] End user authorization");
             res.status(200).json({...user.dataValues, password: undefined, salt: undefined, accessToken: tokens.accessToken});
         }
         catch (e){
@@ -50,11 +47,9 @@ module.exports = {
 
     logout: async (req, res, next) => {
         try{
-            Log.info("[UserController] Start user logout");
             const {refreshToken} = req.cookies;
             await tokenController.deleteToken(refreshToken);
             res.clearCookie("refreshToken");
-            Log.info("[UserController] End user logout");
             res.status(200).json();
         }
         catch (e){
@@ -64,7 +59,6 @@ module.exports = {
 
     refresh: async (req, res, next) => {
         try{
-            Log.info("[UserController] Start user refresh token");
             const {refreshToken} = req.cookies;
             const userData = await tokenController.refreshToken(refreshToken);
             const user = await userModel.findId(userData.id);
@@ -72,7 +66,6 @@ module.exports = {
             await tokenController.saveToken(user.id, tokens.refreshToken);
 
             res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30*24*60*60*1000, httpOnly:true});
-            Log.info("[UserController] End user refresh token");
             res.status(200).json({...user.dataValues, password: undefined, salt: undefined, accessToken: tokens.accessToken});
         }
         catch (e){
@@ -82,11 +75,9 @@ module.exports = {
 
     get: async (req, res, next) => {
         try{
-            Log.info("[UserController] Start get user");
             const user = await userModel.findId(req.params?.id);
             if (!user)
                 throw ApiError.BadRequest([], "[UserController]");
-            Log.info("[UserController] End get user");
             res.status(200).json({...user, password: undefined, salt: undefined});
         }
         catch (e){
@@ -94,4 +85,56 @@ module.exports = {
         }
     },
 
+    editDescription: async (req, res, next) => {
+        try{
+            const validator = new UserValidator(req?.body, {id: ["number"], description: ["string", "description"]});
+            if (validator.errors.length)
+                throw ApiError.BadRequest(validator.errors, "[UserController]");
+            const { id, description } = req?.body;
+            const user = await userModel.editOneColumn(id, "description", description);
+            res.status(200).json({...user, password: undefined, salt: undefined});
+        }
+        catch (e) {
+            next(e);
+        }
+    },
+    createLink: async (req, res, next) => {
+        try{
+            const data = {...req?.body, user_id: +req?.body?.user_id, icon: req?.files?.icon};
+            const validator = new UserValidator(data, {user_id: ["notNull"], title: ["string", "min-2", "max-30"], link:["string", "url"]});
+            if (validator.errors.length)
+                throw ApiError.BadRequest(validator.errors, "[UserController]");
+            if (!data?.icon?.data)
+                data.icon = null;
+            else
+                data.icon = 'data:image/png;base64, ' + data.icon.data.toString('base64');
+            const link = await linkModel.create(data);
+            const links = await linkModel.findUserId(link.user_id);
+            res.status(200).json(links);
+        }
+        catch (e) {
+            next(e);
+        }
+    },
+    getLinks: async (req, res, next) => {
+        try{
+            const links = await linkModel.findUserId(+req?.params?.id);
+            res.status(200).json(links);
+        }
+        catch (e) {
+            next(e);
+        }
+    },
+    deleteLink: async (req, res, next) => {
+        try{
+            const link = await linkModel.findById(+req?.params?.id);
+            const user_id = link.user_id;
+            await link.destroy();
+            const links = await linkModel.findUserId(user_id);
+            res.status(200).json(links);
+        }
+        catch (e) {
+            next(e);
+        }
+    }
 };
