@@ -24,7 +24,41 @@ module.exports = {
         }));
     },
 
-    findRequestByUserId: async (id) => {
+    findByUserIdAndText: async (id, text) => {
+        return (await Friend.findAll({
+            where: {
+                is_friend: true,
+                [Op.or]: [
+                    {user_id_1: id},
+                    {user_id_2: id},
+                ]
+            },
+            include: [
+                {
+                    model: User,
+                    as: 'user_1',
+                    where: {
+                        [Op.or]:[
+                            {nickname: {[Op.like]: `%${text}%`}},
+                            {id}
+                        ]
+                    }
+                },
+                {
+                    model: User,
+                    as: 'user_2',
+                    where: {
+                        [Op.or]:[
+                            {nickname: {[Op.like]: `%${text}%`}},
+                            {id}
+                        ]
+                    }
+                }
+            ]
+        }));
+    },
+
+    findRequestsByUserId: async (id) => {
         return (await Friend.findAll({
             where: {
                 is_friend: false,
@@ -42,6 +76,7 @@ module.exports = {
     findByUsersId: async (user_id_1, user_id_2) => {
         return (await Friend.findAll({
             where: {
+
                 [Op.or]: [
                     {
                         user_id_1,

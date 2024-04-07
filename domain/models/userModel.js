@@ -1,6 +1,7 @@
 const User = require("#db/models/index").User;
 const ApiError = require('#utils/exceptions/apiError');
 const bcrypt = require('bcrypt');
+const { Op } = require("sequelize");
 module.exports = {
     create: async ({nickname, email, password, salt}) => {
         if ((await User.findAll({where:{email}})).length)
@@ -29,5 +30,14 @@ module.exports = {
         await user.update({[nameColumn]: value});
         await user.save();
         return user.dataValues;
+    },
+
+    findByText: async (text) => {
+        return (await User.findAll({
+            where:{
+                nickname: {[Op.like]: `%${text}%`}
+            },
+            limit: 3
+        }));
     }
 };
