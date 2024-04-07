@@ -62,6 +62,38 @@ module.exports = {
         salt: 437,
         createdAt: new Date(Date.now()),
         updatedAt: new Date(Date.now())
+      },
+      {
+        nickname: 'Archive2',
+        email: 'archive2@target.the',
+        password: '$2b$04$qjwsNgYrcq/6azn6xWs0qut2zJd6rCC.nl5LQ1FjIfUR4H/OEIhLG',
+        salt: 437,
+        createdAt: new Date(Date.now()),
+        updatedAt: new Date(Date.now())
+      },
+      {
+        nickname: 'Archive3',
+        email: 'archive3@target.the',
+        password: '$2b$04$qjwsNgYrcq/6azn6xWs0qut2zJd6rCC.nl5LQ1FjIfUR4H/OEIhLG',
+        salt: 437,
+        createdAt: new Date(Date.now()),
+        updatedAt: new Date(Date.now())
+      },
+      {
+        nickname: 'Archive4',
+        email: 'archive4@target.the',
+        password: '$2b$04$qjwsNgYrcq/6azn6xWs0qut2zJd6rCC.nl5LQ1FjIfUR4H/OEIhLG',
+        salt: 437,
+        createdAt: new Date(Date.now()),
+        updatedAt: new Date(Date.now())
+      },
+      {
+        nickname: 'Archive5jk',
+        email: 'archiasdsadve5@target.the',
+        password: '$2b$04$qjwsNgYrcq/6azn6xWs0qut2zJd6rCC.nl5LQ1FjIfUR4H/OEIhLG',
+        salt: 437,
+        createdAt: new Date(Date.now()),
+        updatedAt: new Date(Date.now())
       }
     ])
   },

@@ -1,5 +1,6 @@
 const userModel = require("#models/userModel");
 const linkModel = require("#models/linkModel");
+const friendModel = require("#models/friendModel");
 const UserValidator = require("#utils/validators/userValidator");
 const tokenController = require("#controllers/tokenController");
 const ApiError = require("#utils/exceptions/apiError");
@@ -136,5 +137,65 @@ module.exports = {
         catch (e) {
             next(e);
         }
-    }
+    },
+    getFriends: async (req, res, next) => {
+        try{
+            const friends = await friendModel.findByUserId(+req?.params?.id);
+            res.status(200).json(friends);
+        }
+        catch (e) {
+            next(e);
+        }
+    },
+    getRequests: async (req, res, next) => {
+        try{
+            const requests = await friendModel.findRequestByUserId(+req?.params?.id);
+            res.status(200).json(requests);
+        }
+        catch (e) {
+            next(e);
+        }
+    },
+    createRequest: async (req, res, next) => {
+        try{
+            const { user_id_1, user_id_2 } = req?.body;
+            const validator = new UserValidator(req?.body, {user_id_1: ["notNull", "number"], user_id_2: ["notNull", "number"]});
+            if (validator.errors.length)
+                throw ApiError.BadRequest(validator.errors, "[UserController]");
+            const friendsAndRequest = await friendModel.findByUsersId(user_id_1, user_id_2);
+            if (friendsAndRequest.length !== 0)
+                throw ApiError.BadRequest([], "[UserController]");
+            const requests = await friendModel.createRequest(user_id_1, user_id_2);
+            res.status(200).json(requests);
+        }
+        catch (e) {
+            next(e);
+        }
+    },
+    updateStatusFriend: async (req, res, next) => {
+        try{
+            const { id, is_friend } = req?.body;
+            const validator = new UserValidator(req?.body, {id: ["notNull", "number"], is_friend: ["notNull", "boolean"]});
+            if (validator.errors.length)
+                throw ApiError.BadRequest(validator.errors, "[UserController]");
+            const requests = await friendModel.updateStatus(id, is_friend);
+            res.status(200).json(requests);
+        }
+        catch (e) {
+            next(e);
+        }
+    },
+    deleteRequest: async (req, res, next) => {
+        try{
+            const { id } = req?.body;
+            const validator = new UserValidator(req?.body, {id: ["notNull", "number"]});
+            if (validator.errors.length)
+                throw ApiError.BadRequest(validator.errors, "[UserController]");
+            const requests = await friendModel.deleteRequest(id);
+            res.status(200).json(requests);
+        }
+        catch (e) {
+            next(e);
+        }
+    },
 };

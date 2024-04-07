@@ -1,4 +1,3 @@
-const {where} = require("sequelize");
 const Link = require("#db/models/index").Link;
 module.exports = {
     create: async (body) => {

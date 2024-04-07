@@ -15,4 +15,11 @@ userRouter.post("/link", authMiddleware, userController.createLink);
 userRouter.delete("/link/:id", authMiddleware, userController.deleteLink);
 userRouter.get("/links/:id", authMiddleware, userController.getLinks);
 
+//Не забыть добавить authMiddleware!!!!!!
+userRouter.get('/friends/:id', authMiddleware, userController.getFriends)
+userRouter.get('/requests/:id', authMiddleware, userController.getRequests)
+userRouter.post('/request',  authMiddleware, userController.createRequest)
+userRouter.put('/request/status', authMiddleware, userController.updateStatusFriend)
+userRouter.delete('/request', authMiddleware, userController.deleteRequest)
+
 module.exports = userRouter;
