@@ -16,41 +16,43 @@ module.exports = {
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        default: new Date(Date.now())
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        default: new Date(Date.now())
       }
     });
     await queryInterface.bulkInsert('VideoCategories', [
       {
-        code: 'CategoryVideo.nature',
+        code: 'nature',
         createdAt: new Date(Date.now()),
         updatedAt: new Date(Date.now())
       },
       {
-        code: 'CategoryVideo.auto',
+        code: 'auto',
         createdAt: new Date(Date.now()),
         updatedAt: new Date(Date.now())
       },
       {
-        code: 'CategoryVideo.humor',
+        code: 'humor',
         createdAt: new Date(Date.now()),
         updatedAt: new Date(Date.now())
       },
       {
-        code: 'CategoryVideo.education',
+        code: 'education',
         createdAt: new Date(Date.now()),
         updatedAt: new Date(Date.now())
       },
       {
-        code: 'CategoryVideo.entertainment',
+        code: 'entertainment',
         createdAt: new Date(Date.now()),
         updatedAt: new Date(Date.now())
       },
       {
-        code: 'CategoryVideo.scienceAndTechnology',
+        code: 'scienceAndTechnology',
         createdAt: new Date(Date.now()),
         updatedAt: new Date(Date.now())
       },

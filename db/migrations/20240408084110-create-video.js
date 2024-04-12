@@ -1,34 +1,53 @@
 'use strict';
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Links', {
+  async up (queryInterface, Sequelize) {
+    await queryInterface.createTable('Videos', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      title: {
+      title:{
         type: Sequelize.STRING,
         allowNull: false,
       },
-      link: {
+      category_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references:{
+          model:{
+            tableName: 'VideoCategories',
+          },
+          key: "id"
+        },
+      },
+      description: {
         type: Sequelize.TEXT,
         allowNull: false,
       },
-      user_id: {
+      url: {
+        type: Sequelize.TEXT,
+        allowNull: false,
+      },
+      author_id: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references:{
           model:{
             tableName: 'Users',
           },
           key: "id"
         },
-        allowNull: false,
       },
-      icon: {
+      poster: {
         type: Sequelize.TEXT('long')
+      },
+      duration:{
+        allowNull: false,
+        type: Sequelize.TIME,
       },
       createdAt: {
         allowNull: false,
@@ -42,7 +61,8 @@ module.exports = {
       }
     });
   },
-  async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Links');
+
+  async down (queryInterface, Sequelize) {
+    await queryInterface.dropTable('Videos');
   }
 };
