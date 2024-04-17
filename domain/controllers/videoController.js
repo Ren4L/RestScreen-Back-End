@@ -2,6 +2,8 @@ require('dotenv').config();
 const userModel = require("#models/userModel");
 const videoCategoryModel = require('#models/videoCategoryModel');
 const videoModel = require('#models/videoModel');
+const viewModel = require('#models/viewModel');
+const commentModel = require('#models/commentModel');
 const fs = require("fs");
 const VideoValidator = require("#utils/validators/videoValidator");
 const ApiError = require("#utils/exceptions/apiError");
@@ -107,7 +109,76 @@ module.exports = {
             if (validator.errors.length)
                 throw ApiError.BadRequest(validator.errors, "[VideoController]");
             const video = await videoModel.get(id);
+            video.dataValues.likes = (await viewModel.getAll(id, true)).length;
+            video.dataValues.dislikes = (await viewModel.getAll(id, false)).length;
+            video.dataValues.views = (await viewModel.getAll(id)).length;
             res.status(200).json(video);
+        } catch (e) {
+            next(e);
+        }
+    },
+    getView: async (req, res, next) => {
+        try {
+            const {user_id, video_id} = req.params;
+            const validator = new VideoValidator({user_id: +req.params?.user_id, video_id: +req.params?.video_id}, {user_id: ["notNull", "number"], video_id: ["notNull", "number"]});
+            if (validator.errors.length)
+                throw ApiError.BadRequest(validator.errors, "[VideoController]");
+            const view = await viewModel.get(user_id, video_id);
+            res.status(200).json(view);
+        } catch (e) {
+            next(e);
+        }
+    },
+    createOrUpdateView: async (req, res, next) => {
+        try {
+            const {user_id, video_id} = req.body;
+            const validator = new VideoValidator(req.body, {user_id: ["notNull", "number"], video_id: ["notNull", "number"]});
+            if (validator.errors.length)
+                throw ApiError.BadRequest(validator.errors, "[VideoController]");
+            let view;
+            const checkView = await viewModel.get(user_id, video_id);
+            if (!checkView)
+                view = await viewModel.create({...req.body});
+            else{
+                view = await viewModel.update({id: checkView.id, ...req.body});
+            }
+            const video = await videoModel.get(video_id);
+            video.dataValues.likes = (await viewModel.getAll(video_id, true)).length;
+            video.dataValues.dislikes = (await viewModel.getAll(video_id, false)).length;
+            video.dataValues.views = (await viewModel.getAll(video_id)).length;
+            res.status(200).json(video);
+        } catch (e) {
+            next(e);
+        }
+    },
+    getAllComment: async (req, res, next) => {
+        try {
+            const id = +req.params?.video_id;
+            const validator = new VideoValidator({id}, {id: ["notNull", "number"]});
+            if (validator.errors.length)
+                throw ApiError.BadRequest(validator.errors, "[VideoController]");
+            const comments = await commentModel.getAll(id);
+            res.status(200).json(comments);
+        } catch (e) {
+            console.log(e)
+            next(e);
+        }
+    },
+    createComment: async (req, res, next) => {
+        try {
+            const validator = new VideoValidator(req.body, {user_id: ["notNull", "number"], video_id: ["notNull", "number"], comment: ["notNull", "string", "comment"]});
+            if (validator.errors.length)
+                throw ApiError.BadRequest(validator.errors, "[VideoController]");
+            const video = await commentModel.create(req.body);
+            res.status(200).json(video);
+        } catch (e) {
+            next(e);
+        }
+    },
+    getAllByUserId: async (req, res, next) => {
+        try {
+            const videos = await videoModel.getAllByUserId(+req.params?.user_id);
+            res.status(200).json(videos);
         } catch (e) {
             next(e);
         }

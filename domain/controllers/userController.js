@@ -1,6 +1,7 @@
 const userModel = require("#models/userModel");
 const linkModel = require("#models/linkModel");
 const friendModel = require("#models/friendModel");
+const videoModel = require("#models/videoModel");
 const UserValidator = require("#utils/validators/userValidator");
 const tokenController = require("#controllers/tokenController");
 const ApiError = require("#utils/exceptions/apiError");
@@ -66,7 +67,7 @@ module.exports = {
             const tokens = tokenController.generateTokens({...user, password: undefined, salt: undefined});
             await tokenController.saveToken(user.id, tokens.refreshToken);
 
-            res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30*24*60*60*1000, httpOnly:true});
+            res.cookie('refreshToken', tokens.refreshToken, {maxAge: 24*60*60*1000, httpOnly:true});
             res.status(200).json({...user.dataValues, password: undefined, salt: undefined, accessToken: tokens.accessToken});
         }
         catch (e){
@@ -79,6 +80,8 @@ module.exports = {
             const user = await userModel.findId(req.params?.id);
             if (!user)
                 throw ApiError.BadRequest([], "[UserController]");
+            user.subscribers = (await friendModel.findSubscribersByUserId(+req.params?.id)).length;
+            user.videos = (await videoModel.getAllByUserId(+req.params?.id)).length;
             res.status(200).json({...user, password: undefined, salt: undefined});
         }
         catch (e){
@@ -137,5 +140,19 @@ module.exports = {
         catch (e) {
             next(e);
         }
-    }
+    },
+    changeImage: async (req, res, next) => {
+        try{
+            const data = {user_id: +req.body?.user_id, image: req?.files?.image, column: req.body?.column};
+            const validator = new UserValidator(data, {user_id: ["notNull", "number"], banner: ["notNull"], column: ["notNull", "string"]});
+            if (validator.errors.length)
+                throw ApiError.BadRequest(validator.errors, "[UserController]");
+            data.image = 'data:image/png;base64, ' + data.image.data.toString('base64');
+            const status = await userModel.editOneColumn(data.user_id, data.column, data.image);
+            res.status(200).json({status});
+        }
+        catch (e) {
+            next(e);
+        }
+    },
 };

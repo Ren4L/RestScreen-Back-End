@@ -6,9 +6,9 @@ require('dotenv').config();
 
 module.exports = {
     generateTokens(payload){
-        const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, {expiresIn: '60m'});
+        const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, {expiresIn: '15m'});
         Log.info(`[TokenController] AccessToken: ${accessToken}`)
-        const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {expiresIn: '30d'});
+        const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {expiresIn: '1d'});
         Log.info(`[TokenController] RefreshToken: ${refreshToken}`)
         return {accessToken, refreshToken};
     },
@@ -31,7 +31,8 @@ module.exports = {
         if (!refresh_token)
             throw ApiError.UnauthorizedError();
         const userData = this.validateRefreshToken(refresh_token);
-        const tokenIncludeDB = tokenModel.find(refresh_token);
+        const tokenIncludeDB = await tokenModel.find(refresh_token);
+        console.log(tokenIncludeDB)
         if(!userData || !tokenIncludeDB)
             throw ApiError.UnauthorizedError();
         return userData;

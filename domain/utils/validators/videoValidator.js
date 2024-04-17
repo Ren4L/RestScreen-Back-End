@@ -9,7 +9,7 @@ module.exports = class VideoValidator extends Validator {
         if (typeof description !== "string")
             !this.errors.includes("Error.notString") ? this.errors.push("Error.notString") : this.errors;
         else if (!description.match(/^[а-яА-Яa-zA-Z0-9\s?!,.'"Ёё():;]{8,300}$/))
-            this.errors.push("Error.descriptionNotCorrect");
+            this.errors.push("Error.editDescription");
     }
 
     title(title){
@@ -29,5 +29,12 @@ module.exports = class VideoValidator extends Validator {
     fileNotNull(obj){
         if (typeof obj === "undefined" || obj === null)
             this.errors.push("Error.fileNotCorrect");
+    }
+
+    comment(comment){
+        if (typeof comment !== "string")
+            !this.errors.includes("Error.notString") ? this.errors.push("Error.notString") : this.errors;
+        else if (!comment.match(/^[а-яА-Яa-zA-Z0-9\s?!,.'"Ёё():;]{5,500}$/))
+            this.errors.push("Error.commentNotCorrect");
     }
 }

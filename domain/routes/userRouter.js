@@ -11,6 +11,7 @@ userRouter.get("/refresh", userController.refresh);
 userRouter.get("/get/:id", authMiddleware, userController.get);
 
 userRouter.put("/description", authMiddleware, userController.editDescription);
+userRouter.put("/image", authMiddleware, userController.changeImage);
 
 userRouter.post("/link", authMiddleware, userController.createLink);
 userRouter.delete("/link/:id", authMiddleware, userController.deleteLink);
