@@ -2,22 +2,24 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Links', {
+    await queryInterface.createTable('Messages', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      title: {
-        type: Sequelize.STRING,
+      chat_id: {
+        type: Sequelize.INTEGER,
+        references:{
+          model:{
+            tableName: 'Chats',
+          },
+          key: "id"
+        },
         allowNull: false,
       },
-      link: {
-        type: Sequelize.TEXT,
-        allowNull: false,
-      },
-      user_id: {
+      author_id: {
         type: Sequelize.INTEGER,
         references:{
           model:{
@@ -27,8 +29,13 @@ module.exports = {
         },
         allowNull: false,
       },
-      icon: {
-        type: Sequelize.TEXT
+      message: {
+        type: Sequelize.TEXT('long'),
+        allowNull: false,
+      },
+      view: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false
       },
       createdAt: {
         allowNull: false,
@@ -43,6 +50,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Links');
+    await queryInterface.dropTable('Messages');
   }
 };

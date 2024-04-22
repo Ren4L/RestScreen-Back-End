@@ -35,10 +35,10 @@ module.exports = {
             const { user_id_1, user_id_2 } = req?.body;
             const validator = new UserValidator(req?.body, {user_id_1: ["notNull", "number"], user_id_2: ["notNull", "number"]});
             if (validator.errors.length)
-                throw ApiError.BadRequest(validator.errors, "[UserController]");
+                throw ApiError.BadRequest(validator.errors, "[FriendController]");
             const friendsAndRequest = await friendModel.findByUsersId(user_id_1, user_id_2);
             if (friendsAndRequest.length !== 0)
-                throw ApiError.BadRequest([], "[UserController]");
+                throw ApiError.BadRequest([], "[FriendController]");
             const requests = await friendModel.createRequest(user_id_1, user_id_2);
             res.status(200).json(requests);
         }
@@ -51,7 +51,7 @@ module.exports = {
             const { id, is_friend } = req?.body;
             const validator = new UserValidator(req?.body, {id: ["notNull", "number"], is_friend: ["notNull", "boolean"]});
             if (validator.errors.length)
-                throw ApiError.BadRequest(validator.errors, "[UserController]");
+                throw ApiError.BadRequest(validator.errors, "[FriendController]");
             const requests = await friendModel.updateStatus(id, is_friend);
             res.status(200).json(requests);
         }
@@ -64,7 +64,7 @@ module.exports = {
             const id = req?.params?.id;
             const validator = new UserValidator(req?.params, {id: ["notNull", "number"]});
             if (validator.errors.length)
-                throw ApiError.BadRequest(validator.errors, "[UserController]");
+                throw ApiError.BadRequest(validator.errors, "[FriendController]");
             const requests = await friendModel.deleteRequest(id);
             res.status(200).json(requests);
         }
@@ -79,7 +79,7 @@ module.exports = {
 
             const validator = new UserValidator({user_1, user_2}, {user_1: ["notNull", "number"], user_2: ["notNull", "number"]});
             if (validator.errors.length)
-                throw ApiError.BadRequest(validator.errors, "[UserController]");
+                throw ApiError.BadRequest(validator.errors, "[FriendController]");
 
             const requests = await friendModel.findByUsersId(user_1, user_2);
             res.status(200).json(requests);

@@ -84,7 +84,9 @@ module.exports = {
                 data.poster = null;
             }
             else {
-                data.poster = 'data:image/png;base64, ' + data.poster.data.toString('base64');
+                data.poster =`/public/poster/${uuidv4()}${req.files.poster.name.slice(req.files.poster.name.lastIndexOf('.'))}`;
+                await req.files.poster.mv('.' + data.poster);
+                data.poster = process.env.DOMAIN + data.poster;
             }
             data.url =`/public/video/${uuidv4()}${req.files.video.name.slice(req.files.video.name.lastIndexOf('.'))}`;
             await req.files.video.mv('.' + data.url);
@@ -112,6 +114,7 @@ module.exports = {
             video.dataValues.likes = (await viewModel.getAll(id, true)).length;
             video.dataValues.dislikes = (await viewModel.getAll(id, false)).length;
             video.dataValues.views = (await viewModel.getAll(id)).length;
+            video.dataValues.comments = (await commentModel.getAll(id)).length;
             res.status(200).json(video);
         } catch (e) {
             next(e);
@@ -157,7 +160,7 @@ module.exports = {
             const validator = new VideoValidator({id}, {id: ["notNull", "number"]});
             if (validator.errors.length)
                 throw ApiError.BadRequest(validator.errors, "[VideoController]");
-            const comments = await commentModel.getAll(id);
+            const comments = await commentModel.getAll(id, +req.query?.limit, +req.query?.page);
             res.status(200).json(comments);
         } catch (e) {
             console.log(e)

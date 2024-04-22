@@ -20,7 +20,7 @@ module.exports = {
         allowNull: false,
       },
       refresh_token: {
-        type: Sequelize.TEXT,
+        type: Sequelize.TEXT('long'),
         allowNull: false,
       },
       createdAt: {

@@ -7,19 +7,16 @@ require('dotenv').config();
 module.exports = {
     generateTokens(payload){
         const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, {expiresIn: '15m'});
-        Log.info(`[TokenController] AccessToken: ${accessToken}`)
         const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {expiresIn: '1d'});
-        Log.info(`[TokenController] RefreshToken: ${refreshToken}`)
         return {accessToken, refreshToken};
     },
 
     async saveToken(user_id, refresh_token){
-        Log.info(`[TokenController] Start save token\n UserId: ${user_id}\n RefreshToken: ${refresh_token}`);
+        await tokenModel.deleteByUserId(user_id);
         await tokenModel.create(user_id, refresh_token);
     },
 
     async deleteToken(refresh_token){
-        Log.info(refresh_token, `[TokenController] Start delete token\n RefreshToken: ${refresh_token}`);
         if (!refresh_token)
             throw ApiError.UnauthorizedError();
         let deleteToken = await tokenModel.delete(refresh_token);
@@ -27,12 +24,10 @@ module.exports = {
     },
 
     async refreshToken(refresh_token){
-        Log.info(`[TokenController] Start refresh token\n RefreshToken: ${refresh_token}`);
         if (!refresh_token)
             throw ApiError.UnauthorizedError();
         const userData = this.validateRefreshToken(refresh_token);
         const tokenIncludeDB = await tokenModel.find(refresh_token);
-        console.log(tokenIncludeDB)
         if(!userData || !tokenIncludeDB)
             throw ApiError.UnauthorizedError();
         return userData;

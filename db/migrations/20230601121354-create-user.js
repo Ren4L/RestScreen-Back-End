@@ -22,11 +22,11 @@ module.exports = {
         allowNull: false,
       },
       photo:{
-        type: Sequelize.TEXT('long'),
+        type: Sequelize.TEXT,
         allowNull: true,
       },
       banner:{
-        type: Sequelize.TEXT('long'),
+        type: Sequelize.TEXT,
         allowNull: true,
       },
       description:{

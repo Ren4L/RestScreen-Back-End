@@ -43,7 +43,7 @@ module.exports = {
         },
       },
       poster: {
-        type: Sequelize.TEXT('long')
+        type: Sequelize.TEXT
       },
       duration:{
         allowNull: false,

@@ -1,6 +1,7 @@
 const express = require('express');
 const userController = require('#controllers/userController');
 const friendController = require('#controllers/friendController');
+const chatController = require('#controllers/chatController');
 const authMiddleware = require('#middlewares/authMiddleware');
 const userRouter = express.Router();
 
@@ -24,5 +25,10 @@ userRouter.post('/request',  authMiddleware, friendController.createRequest)
 userRouter.put('/request/status', authMiddleware, friendController.updateStatusFriend)
 userRouter.delete('/request', authMiddleware, friendController.deleteRequest)
 userRouter.get('/friend/check/:user_1/:user_2', authMiddleware, friendController.checkFriend)
+
+userRouter.get('/chat/:user_id_1/:user_id_2', authMiddleware, chatController.getOrCreateChat);
+userRouter.get('/messages/:id', authMiddleware, chatController.getAllMessage);
+userRouter.put('/message/view', authMiddleware, chatController.updateView);
+
 
 module.exports = userRouter;

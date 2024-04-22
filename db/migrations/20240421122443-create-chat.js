@@ -2,22 +2,14 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Links', {
+    await queryInterface.createTable('Chats', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      title: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      link: {
-        type: Sequelize.TEXT,
-        allowNull: false,
-      },
-      user_id: {
+      user_id_1: {
         type: Sequelize.INTEGER,
         references:{
           model:{
@@ -27,8 +19,15 @@ module.exports = {
         },
         allowNull: false,
       },
-      icon: {
-        type: Sequelize.TEXT
+      user_id_2: {
+        type: Sequelize.INTEGER,
+        references:{
+          model:{
+            tableName: 'Users',
+          },
+          key: "id"
+        },
+        allowNull: false,
       },
       createdAt: {
         allowNull: false,
@@ -43,6 +42,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Links');
+    await queryInterface.dropTable('Chats');
   }
 };

@@ -16,6 +16,9 @@ module.exports = {
         return await Token.destroy({where:{refresh_token}});
     },
 
+    deleteByUserId: async (user_id) => {
+        return await Token.destroy({where:{user_id}});
+    },
     find: async (refresh_token) => {
         return await Token.findOne({where:{refresh_token}});
     }

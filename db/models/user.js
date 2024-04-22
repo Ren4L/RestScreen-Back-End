@@ -35,6 +35,21 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: 'RESTRICT',
         onUpdate: 'RESTRICT'
       });
+      this.hasOne(models.Chat, {
+        foreignKey: 'user_id_1',
+        onDelete: 'RESTRICT',
+        onUpdate: 'RESTRICT'
+      });
+      this.hasOne(models.Chat, {
+        foreignKey: 'user_id_2',
+        onDelete: 'RESTRICT',
+        onUpdate: 'RESTRICT'
+      });
+      this.hasOne(models.Message, {
+        foreignKey: 'author_id',
+        onDelete: 'RESTRICT',
+        onUpdate: 'RESTRICT'
+      });
     }
   }
   User.init({
@@ -43,7 +58,8 @@ module.exports = (sequelize, DataTypes) => {
     description: DataTypes.STRING,
     password: DataTypes.STRING,
     salt: DataTypes.INTEGER,
-    photo: DataTypes.TEXT
+    photo: DataTypes.TEXT,
+    banner: DataTypes.TEXT
   }, {
     sequelize,
     modelName: 'User',

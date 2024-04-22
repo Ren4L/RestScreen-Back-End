@@ -6,6 +6,8 @@ const UserValidator = require("#utils/validators/userValidator");
 const tokenController = require("#controllers/tokenController");
 const ApiError = require("#utils/exceptions/apiError");
 const Log = require('#log');
+const {v4: uuidv4} = require("uuid");
+require('dotenv').config();
 
 module.exports = {
     register: async (req, res, next) => {
@@ -20,6 +22,7 @@ module.exports = {
             const tokens = tokenController.generateTokens({...user.dataValues, password: undefined, salt: undefined});
             await tokenController.saveToken(user.id, tokens.refreshToken);
 
+            res.clearCookie('refreshToken');
             res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30*24*60*60*1000, httpOnly:true})
             res.status(201).json({...user.dataValues, password: undefined, salt: undefined, accessToken: tokens.accessToken});
         }
@@ -39,10 +42,12 @@ module.exports = {
             const tokens = tokenController.generateTokens({...user.dataValues, password: undefined, salt: undefined});
             await tokenController.saveToken(user.id, tokens.refreshToken);
 
+            res.clearCookie('refreshToken');
             res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30*24*60*60*1000, httpOnly:true})
             res.status(200).json({...user.dataValues, password: undefined, salt: undefined, accessToken: tokens.accessToken});
         }
         catch (e){
+            Log.info(e.message);
             next(e);
         }
     },
@@ -67,10 +72,12 @@ module.exports = {
             const tokens = tokenController.generateTokens({...user, password: undefined, salt: undefined});
             await tokenController.saveToken(user.id, tokens.refreshToken);
 
+            res.clearCookie('refreshToken');
             res.cookie('refreshToken', tokens.refreshToken, {maxAge: 24*60*60*1000, httpOnly:true});
             res.status(200).json({...user.dataValues, password: undefined, salt: undefined, accessToken: tokens.accessToken});
         }
         catch (e){
+            Log.error(e.message)
             next(e);
         }
     },
@@ -110,8 +117,11 @@ module.exports = {
                 throw ApiError.BadRequest(validator.errors, "[UserController]");
             if (!data?.icon?.data)
                 data.icon = null;
-            else
-                data.icon = 'data:image/png;base64, ' + data.icon.data.toString('base64');
+            else{
+                data.icon =`/public/icon/${uuidv4()}${req.files.icon.name.slice(req.files.icon.name.lastIndexOf('.'))}`;
+                await req.files.icon.mv('.' + data.icon);
+                data.icon = process.env.DOMAIN + data.icon;
+            }
             const link = await linkModel.create(data);
             const links = await linkModel.findUserId(link.user_id);
             res.status(200).json(links);
@@ -144,12 +154,13 @@ module.exports = {
     changeImage: async (req, res, next) => {
         try{
             const data = {user_id: +req.body?.user_id, image: req?.files?.image, column: req.body?.column};
-            const validator = new UserValidator(data, {user_id: ["notNull", "number"], banner: ["notNull"], column: ["notNull", "string"]});
+            const validator = new UserValidator(data, {user_id: ["notNull", "number"], image: ["notNull"], column: ["notNull", "string"]});
             if (validator.errors.length)
                 throw ApiError.BadRequest(validator.errors, "[UserController]");
-            data.image = 'data:image/png;base64, ' + data.image.data.toString('base64');
-            const status = await userModel.editOneColumn(data.user_id, data.column, data.image);
-            res.status(200).json({status});
+            data.image =`/public/image/${uuidv4()}${req.files.image.name.slice(req.files.image.name.lastIndexOf('.'))}`;
+            await req.files.image.mv('.' + data.image);
+            const user = await userModel.editOneColumn(data.user_id, data.column, process.env.DOMAIN + data.image);
+            res.status(200).json(user);
         }
         catch (e) {
             next(e);
