@@ -2,6 +2,7 @@ const chatModel = require('#models/chatModel');
 const messageModel = require('#models/messageModel');
 const UserValidator = require("#utils/validators/userValidator");
 const ApiError = require("#utils/exceptions/apiError");
+const Log = require("#log");
 
 module.exports = {
     getOrCreateChat: async (req, res, next) => {
@@ -44,5 +45,19 @@ module.exports = {
         catch (e) {
             next(e);
         }
-    }
+    },
+
+    getAllChats: async (req, res, next) => {
+        try{
+            const validator = new UserValidator({user_id: +req.params?.user_id}, {user_id: ["notNull", "number"]});
+            if (validator.errors.length)
+                throw ApiError.BadRequest(validator.errors, "[ChatController]");
+            const chats = await chatModel.getAllChats(+req.params?.user_id, req.query?.str);
+            res.status(200).json(chats);
+        }
+        catch (e) {
+            Log.info(e)
+            next(e);
+        }
+    },
 };

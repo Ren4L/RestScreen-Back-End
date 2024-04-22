@@ -130,4 +130,17 @@ module.exports = {
             }
         }));
     },
+    findRequestByUsersId: async (user_id_1, user_id_2) => {
+        return (await Friend.findOne({
+            where: {
+
+                [Op.or]: [
+                    {
+                        user_id_1:user_id_2,
+                        user_id_2:user_id_1,
+                    },
+                ]
+            }
+        }));
+    },
 };

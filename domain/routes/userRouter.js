@@ -29,6 +29,7 @@ userRouter.get('/friend/check/:user_1/:user_2', authMiddleware, friendController
 userRouter.get('/chat/:user_id_1/:user_id_2', authMiddleware, chatController.getOrCreateChat);
 userRouter.get('/messages/:id', authMiddleware, chatController.getAllMessage);
 userRouter.put('/message/view', authMiddleware, chatController.updateView);
+userRouter.get('/chats/:user_id', chatController.getAllChats);
 
 
 module.exports = userRouter;

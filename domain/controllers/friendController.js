@@ -36,6 +36,11 @@ module.exports = {
             const validator = new UserValidator(req?.body, {user_id_1: ["notNull", "number"], user_id_2: ["notNull", "number"]});
             if (validator.errors.length)
                 throw ApiError.BadRequest(validator.errors, "[FriendController]");
+            const findRequest = await friendModel.findRequestByUsersId(user_id_1, user_id_2);
+            if (findRequest){
+                await friendModel.updateStatus(findRequest.id, true);
+                return res.status(200).json(findRequest);
+            }
             const friendsAndRequest = await friendModel.findByUsersId(user_id_1, user_id_2);
             if (friendsAndRequest.length !== 0)
                 throw ApiError.BadRequest([], "[FriendController]");

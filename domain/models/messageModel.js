@@ -19,7 +19,6 @@ module.exports = {
     },
 
     updateView: async (id) => {
-        console.log(id)
         return await Message.update({
             view: true
         }, {
