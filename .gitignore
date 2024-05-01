@@ -13,3 +13,4 @@
 /public/image/*
 /public/poster/*
 /public/video/*
+.env
