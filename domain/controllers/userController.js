@@ -4,9 +4,11 @@ const friendModel = require("#models/friendModel");
 const videoModel = require("#models/videoModel");
 const UserValidator = require("#utils/validators/userValidator");
 const tokenController = require("#controllers/tokenController");
+const mailController = require("#controllers/mailController");
 const ApiError = require("#utils/exceptions/apiError");
 const Log = require('#log');
 const {v4: uuidv4} = require("uuid");
+const bcrypt = require("bcrypt");
 require('dotenv').config();
 
 module.exports = {
@@ -48,6 +50,50 @@ module.exports = {
         }
         catch (e){
             Log.info(e.message);
+            next(e);
+        }
+    },
+
+    forgotPassword: async (req, res, next) => {
+        try{
+            let code = Math.round(10000 + Math.random() * (100000 - 10000 + 1));
+            const { email } = req.body;
+            const validator = new UserValidator(req.body, {email:["email"]});
+
+            if (validator.errors.length)
+                throw ApiError.BadRequest(validator.errors, "[UserController]");
+
+            let user = await userModel.findByEmail(email);
+            if (!user)
+                throw ApiError.BadRequest(["Error.emailNotFound"], "[UserController]");
+
+            await userModel.editOneColumn(user.id, 'code', code);
+            await mailController.sendForgotMail(user, code);
+            res.status(201).json();
+        }
+        catch (e){
+            next(e);
+        }
+    },
+
+    changePassword: async (req, res, next) => {
+        try{
+            const { id, password, code } = req.body;
+            const validator = new UserValidator(req.body, {id: ['notNull', 'number'], code:['notNull', 'code'], password: ["password", "passwordCompare:password:passwordRepeat"]});
+            if (validator.errors.length)
+                throw ApiError.BadRequest(validator.errors, "[UserController]");
+
+            let user = await userModel.findId(id);
+            if (!user)
+                throw ApiError.BadRequest(["Error.urlIdNotCorrect"], "[UserController]");
+            if (user.code !== code)
+                throw ApiError.BadRequest(["Error.codeNotTrue"], "[UserController]");
+            const newPassword = await bcrypt.hash(password + user.salt, 3);
+            await userModel.editOneColumn(user.id, 'password', newPassword);
+            await userModel.editOneColumn(user.id, 'code', null);
+            res.status(201).json((await userModel.findId(id)).dataValues);
+        }
+        catch (e){
             next(e);
         }
     },

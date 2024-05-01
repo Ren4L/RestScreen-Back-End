@@ -39,5 +39,13 @@ module.exports = {
             },
             limit: 3
         }));
+    },
+
+    findByEmail: async (email) => {
+        return (await User.findOne({
+            where:{
+                email
+            }
+        }));
     }
 };

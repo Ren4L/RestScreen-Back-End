@@ -19,7 +19,9 @@ module.exports = {
       },
       salt:{
         type: Sequelize.INTEGER,
-        allowNull: false,
+      },
+      code:{
+        type: Sequelize.INTEGER,
       },
       photo:{
         type: Sequelize.TEXT,
@@ -35,7 +37,6 @@ module.exports = {
       },
       password:{
         type: Sequelize.STRING(64),
-        allowNull: false,
       },
       createdAt: {
         allowNull: false,

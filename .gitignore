@@ -9,4 +9,7 @@
 /build
 /dist
 /logs
-/public
+/public/icon/*
+/public/image/*
+/public/poster/*
+/public/video/*

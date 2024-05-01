@@ -30,4 +30,11 @@ module.exports = class UserValidator extends Validator {
         else if (!description.match(/^[а-яА-Яa-zA-Z0-9\s?!,.'"Ёё():;]{8,}$/))
             this.errors.push("Error.editDescription");
     }
+
+    code(code){
+        if (typeof code !== "number")
+            !this.errors.includes("Error.notNumber") ? this.errors.push("Error.notNumber") : this.errors;
+        else if (code <= 9999 || code >= 99999)
+            this.errors.push("Error.codeNotCorrect");
+    }
 }
