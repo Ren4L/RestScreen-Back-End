@@ -49,7 +49,6 @@ module.exports = {
             res.status(200).json({...user.dataValues, password: undefined, salt: undefined, accessToken: tokens.accessToken});
         }
         catch (e){
-            Log.info(e.message);
             next(e);
         }
     },
@@ -66,7 +65,8 @@ module.exports = {
             let user = await userModel.findByEmail(email);
             if (!user)
                 throw ApiError.BadRequest(["Error.emailNotFound"], "[UserController]");
-
+            if (!user.password || !user.salt)
+                throw ApiError.BadRequest(["Error.regByGoogle"], "[UserController]");
             await userModel.editOneColumn(user.id, 'code', code);
             await mailController.sendForgotMail(user, code);
             res.status(201).json();
@@ -209,6 +209,34 @@ module.exports = {
             res.status(200).json(user);
         }
         catch (e) {
+            next(e);
+        }
+    },
+    googleAuth: async (req, res, next) => {
+        try{
+            const {access_token} = req.body;
+            const googleDataJSON = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                method: "GET",
+                headers:{
+                    "Authorization": `Bearer ${access_token}`
+                }
+            })
+            const googleData = await googleDataJSON.json();
+            let user = await userModel.findByEmail(googleData?.email);
+            if (user && user.password != null)
+                throw ApiError.BadRequest(['Error.regByForm'], "[UserController]");
+            else if (!user){
+                user = await userModel.createGoogle({nickname: googleData.given_name, email: googleData.email, photo: googleData?.picture})
+            }
+
+            const tokens = tokenController.generateTokens({...user.dataValues, password: undefined, salt: undefined});
+            await tokenController.saveToken(user.id, tokens.refreshToken);
+
+            res.clearCookie('refreshToken');
+            res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30*24*60*60*1000, httpOnly:true})
+            res.status(201).json({...user.dataValues, password: undefined, salt: undefined, accessToken: tokens.accessToken});
+        }
+        catch (e){
             next(e);
         }
     },

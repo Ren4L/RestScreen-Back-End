@@ -8,15 +8,16 @@ require('dotenv').config();
 module.exports = {
     async sendForgotMail(user, code) {
         const transporter = nodemailer.createTransport({
-            host:'smtp.gmail.com',
-            port:587,
-            secure:false,
+            service:"gmail",
+            port:465,
+            secure:true,
+            secureConnection:false,
             auth:{
                 user: process.env.GOOGLE_MAIL,
                 pass: process.env.GOOGLE_APP_PASSWORD
             },
             tls: {
-                rejectUnauthorized: false,
+                rejectUnAuthorized: true,
             }
         });
 

@@ -2,6 +2,7 @@ require('dotenv').config();
 const userModel = require("#models/userModel");
 const videoCategoryModel = require('#models/videoCategoryModel');
 const videoModel = require('#models/videoModel');
+const friendModel = require('#models/friendModel');
 const viewModel = require('#models/viewModel');
 const commentModel = require('#models/commentModel');
 const fs = require("fs");
@@ -53,8 +54,15 @@ module.exports = {
     },
     Search: async (req, res, next) => {
         try {
+            if (req.query.timing == 'undefined' || req.query.timing == 'null')
+                req.query.timing = undefined;
+            if (req.query.sorting == 'undefined' || req.query.sorting == 'null')
+                req.query.sorting = undefined;
+            if (req.query.dateDownload == 'undefined' || req.query.dateDownload == 'null')
+                req.query.dateDownload = undefined;
             const users = await userModel.findByText(req?.params?.text);
-            res.status(200).json({users});
+            const videos = await videoModel.findByTextAndFilter(req?.params?.text, req.query);
+            res.status(200).json({users, videos});
         } catch (e) {
             next(e);
         }
@@ -182,6 +190,37 @@ module.exports = {
         try {
             const videos = await videoModel.getAllByUserId(+req.params?.user_id);
             res.status(200).json(videos);
+        } catch (e) {
+            next(e);
+        }
+    },
+    getSubscriptions: async (req, res, next) => {
+        try {
+            const subscriptions = await friendModel.findForSubscriptionsByUserId(+req.params?.user_id);
+            const subscriptionList = [];
+            for (const el of subscriptions) {
+                subscriptionList.push(el.user_id_1 === +req.params?.user_id ? el.user_id_2 : el.user_id_1)
+            }
+            const videos = await videoModel.getSubscriptions(subscriptionList);
+            res.status(200).json(videos);
+        } catch (e) {
+            next(e);
+        }
+    },
+    GlobalSearch: async (req, res, next) => {
+        try {
+            if (req.query.timing == 'undefined' || req.query.timing == 'null')
+                req.query.timing = undefined;
+            if (req.query.sorting == 'undefined' || req.query.sorting == 'null')
+                req.query.sorting = undefined;
+            if (req.query.dateDownload == 'undefined' || req.query.dateDownload == 'null')
+                req.query.dateDownload = undefined;
+            let users = (await userModel.findByText(req?.params?.text, true));
+            users = Array.isArray(users) ? users : [users];
+            let videos = (await videoModel.findByTextAndFilter(req?.params?.text, req.query, true));
+            videos = Array.isArray(videos) ? videos : [videos];
+            const result = [...users, ...videos].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+            res.status(200).json(result);
         } catch (e) {
             next(e);
         }

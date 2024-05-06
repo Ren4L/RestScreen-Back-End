@@ -7,6 +7,7 @@ const userRouter = express.Router();
 
 userRouter.post("/register", userController.register);
 userRouter.post("/auth", userController.auth);
+userRouter.post("/google/auth", userController.googleAuth);
 userRouter.post("/forgotpassword", userController.forgotPassword);
 userRouter.post("/changepassword", userController.changePassword);
 userRouter.delete("/logout", authMiddleware, userController.logout);

@@ -8,7 +8,7 @@ module.exports = class UserValidator extends Validator {
     nickname(nickname){
         if (typeof nickname !== "string")
             !this.errors.includes("Error.notString") ? this.errors.push("Error.notString") : this.errors;
-        else if (!nickname.match(/^[a-zA-Z0-9]{4,12}$/))
+        else if (!nickname.match(/^[a-zA-Zа-яА-Я0-9]{4,12}$/))
             this.errors.push("Error.nicknameNotCorrect");
     }
 

@@ -3,7 +3,7 @@ const ApiError = require('#utils/exceptions/apiError');
 const bcrypt = require('bcrypt');
 const { Op } = require("sequelize");
 module.exports = {
-    create: async ({nickname, email, password, salt}) => {
+    create: async ({nickname, email, password, salt }) => {
         if ((await User.findAll({where:{email}})).length)
             throw ApiError.BadRequest(["Error.emailIsExist"], "[UserController]");
         return await User.create({
@@ -12,9 +12,18 @@ module.exports = {
         })
     },
 
+    createGoogle: async ({nickname, email, photo}) => {
+        return await User.create({ nickname, email, photo })
+    },
+
+
     login: async ({email, password}) => {
         let user = await User.findOne({where:{email}});
-        if (!user?.email || !(await bcrypt.compare(password + user?.salt, user?.password)))
+        if (!user?.email)
+            throw ApiError.BadRequest(["Error.WrongLoginOrPassword"], "[UserController]");
+        if (!user.password)
+            throw ApiError.BadRequest(["Error.regByGoogle"], "[UserController]");
+        if (!(await bcrypt.compare(password + user?.salt, user?.password)))
             throw ApiError.BadRequest(["Error.WrongLoginOrPassword"], "[UserController]");
         return user;
     },
@@ -32,12 +41,15 @@ module.exports = {
         return user.dataValues;
     },
 
-    findByText: async (text) => {
+    findByText: async (text, limit = false) => {
+        let limitQuery = {};
+        if (!limit)
+            limitQuery = { limit: 3 }
         return (await User.findAll({
             where:{
                 nickname: {[Op.like]: `%${text}%`}
             },
-            limit: 3
+            ...limitQuery
         }));
     },
 

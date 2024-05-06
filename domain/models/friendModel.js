@@ -143,4 +143,20 @@ module.exports = {
             }
         }));
     },
+
+    findForSubscriptionsByUserId: async (user_id) => {
+        return (await Friend.findAll({
+            where: {
+                [Op.or]: [
+                    {
+                        user_id_1: user_id
+                    },
+                    {
+                        user_id_2:user_id,
+                        is_friend: true
+                    },
+                ]
+            }
+        }));
+    },
 };
