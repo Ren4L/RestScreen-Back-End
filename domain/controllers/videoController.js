@@ -217,6 +217,10 @@ module.exports = {
                 req.query.dateDownload = undefined;
             let users = (await userModel.findByText(req?.params?.text, true));
             users = Array.isArray(users) ? users : [users];
+            for (const user of users) {
+                user.dataValues.subscribers = (await friendModel.findSubscribersByUserId(user.id)).length;
+                user.dataValues.videos = (await videoModel.getAllByUserId(user.id)).length;
+            }
             let videos = (await videoModel.findByTextAndFilter(req?.params?.text, req.query, true));
             videos = Array.isArray(videos) ? videos : [videos];
             const result = [...users, ...videos].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
