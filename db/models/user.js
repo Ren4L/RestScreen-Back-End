@@ -50,6 +50,11 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: 'RESTRICT',
         onUpdate: 'RESTRICT'
       });
+      this.hasOne(models.Favourite, {
+        foreignKey: 'user_id',
+        onDelete: 'RESTRICT',
+        onUpdate: 'RESTRICT'
+      });
     }
   }
   User.init({

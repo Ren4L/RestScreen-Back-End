@@ -5,10 +5,12 @@ const videoModel = require('#models/videoModel');
 const friendModel = require('#models/friendModel');
 const viewModel = require('#models/viewModel');
 const commentModel = require('#models/commentModel');
+const favouriteModel = require('#models/favouriteModel');
 const fs = require("fs");
 const VideoValidator = require("#utils/validators/videoValidator");
 const ApiError = require("#utils/exceptions/apiError");
 const { v4: uuidv4 } = require('uuid');
+const Log = require("#log");
 
 module.exports = {
     streamVideo: async (req, res, next) => {
@@ -225,6 +227,44 @@ module.exports = {
             videos = Array.isArray(videos) ? videos : [videos];
             const result = [...users, ...videos].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
             res.status(200).json(result);
+        } catch (e) {
+            next(e);
+        }
+    },
+    createFavourite: async (req, res, next) => {
+        try {
+            const validator = new VideoValidator(req.body, {user_id: ["notNull", "number"], video_id: ["notNull", "number"]});
+            if (validator.errors.length)
+                throw ApiError.BadRequest(validator.errors, "[VideoController]");
+            const video = await favouriteModel.create(req.body);
+            res.status(200).json(video);
+        } catch (e) {
+            next(e);
+        }
+    },
+    getFavourite: async (req, res, next) => {
+        try {
+            const favourite = await favouriteModel.get(+req.params?.user_id, +req.params?.video_id);
+            res.status(200).json(favourite);
+        } catch (e) {
+            next(e);
+        }
+    },
+    deleteFavourite: async (req, res, next) => {
+        try {
+            const video = await favouriteModel.delete({
+                user_id: +req.params?.user_id,
+                video_id: +req.params?.video_id
+            });
+            res.status(200).json(video);
+        } catch (e) {
+            next(e);
+        }
+    },
+    getAllFavourite: async (req, res, next) => {
+        try {
+            const favourites = await favouriteModel.getAll(+req.params?.user_id);
+            res.status(200).json(favourites);
         } catch (e) {
             next(e);
         }

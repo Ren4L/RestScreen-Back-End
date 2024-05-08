@@ -32,6 +32,11 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: 'RESTRICT',
         onUpdate: 'RESTRICT'
       });
+      this.hasOne(models.Favourite, {
+        foreignKey: 'video_id',
+        onDelete: 'RESTRICT',
+        onUpdate: 'RESTRICT'
+      });
     }
   }
   Video.init({
