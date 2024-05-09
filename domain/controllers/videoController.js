@@ -11,6 +11,11 @@ const VideoValidator = require("#utils/validators/videoValidator");
 const ApiError = require("#utils/exceptions/apiError");
 const { v4: uuidv4 } = require('uuid');
 const Log = require("#log");
+const raccoon = require('raccoon');
+raccoon.config.className = 'recommendations';
+raccoon.config.nearestNeighbors = 3;
+raccoon.config.numOfRecsStore = 10;
+
 
 module.exports = {
     streamVideo: async (req, res, next) => {
@@ -144,7 +149,7 @@ module.exports = {
     },
     createOrUpdateView: async (req, res, next) => {
         try {
-            const {user_id, video_id} = req.body;
+            const {user_id, video_id, grade} = req.body;
             const validator = new VideoValidator(req.body, {user_id: ["notNull", "number"], video_id: ["notNull", "number"]});
             if (validator.errors.length)
                 throw ApiError.BadRequest(validator.errors, "[VideoController]");
@@ -154,6 +159,16 @@ module.exports = {
                 view = await viewModel.create({...req.body});
             else{
                 view = await viewModel.update({id: checkView.id, ...req.body});
+            }
+            if (grade == 1){
+                await raccoon.undisliked(user_id, video_id);
+                await raccoon.liked(user_id, video_id);
+            }else if (grade == null || typeof grade == "undefined"){
+                await raccoon.liked(user_id, video_id);
+            }
+            else{
+                await raccoon.unliked(user_id, video_id);
+                await raccoon.disliked(user_id, video_id);
             }
             const video = await videoModel.get(video_id);
             video.dataValues.likes = (await viewModel.getAll(video_id, true)).length;
@@ -265,6 +280,16 @@ module.exports = {
         try {
             const favourites = await favouriteModel.getAll(+req.params?.user_id);
             res.status(200).json(favourites);
+        } catch (e) {
+            next(e);
+        }
+    },
+    getRecommendation: async (req, res, next) => {
+        try {
+            let recommendIds = await raccoon.recommendFor(+req.params?.user_id, 10);
+            let recommendsVideo = await videoModel.getByIds(recommendIds);
+            let anotherVideo = await videoModel.getByNotIncludeIds(recommendIds);
+            res.status(200).json(recommendsVideo.concat(anotherVideo));
         } catch (e) {
             next(e);
         }

@@ -8,6 +8,7 @@ videoRouter.get("/search/:text", videoController.Search);
 videoRouter.get("/search/global/:text", videoController.GlobalSearch);
 videoRouter.get('/category', videoController.getCategory);
 videoRouter.get('/all', videoController.getAll);
+videoRouter.get('/recommendation/:user_id', videoController.getRecommendation);
 videoRouter.get('/:id', videoController.get);
 videoRouter.post('/upload', authMiddleware, videoController.uploadVideo);
 videoRouter.post('/view', authMiddleware, videoController.createOrUpdateView);

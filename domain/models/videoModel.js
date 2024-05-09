@@ -17,7 +17,10 @@ module.exports = {
                 include:[
                     [literal('(SELECT COUNT(*) FROM `Views` WHERE `Views`.`video_id` = `Video`.`id`)'), 'views']
                 ]
-            }
+            },
+            order:[
+                ["createdAt", "DESC"]
+            ]
         }));
     },
     get: async (id) => {
@@ -162,4 +165,54 @@ module.exports = {
             ]
         }));
     },
+    getByIds: async (array) => {
+        return (await Video.findAll({
+            where:{
+                id: array
+            },
+            include: [
+                {
+                    model: User,
+                    as: 'author'
+                },
+                {
+                    model: VideoCategory,
+                    as: 'category'
+                }
+            ],
+            attributes:{
+                include:[
+                    [literal('(SELECT COUNT(*) FROM `Views` WHERE `Views`.`video_id` = `Video`.`id`)'), 'views']
+                ]
+            },
+            order:[
+                ["createdAt", "DESC"]
+            ]
+        }));
+    },
+    getByNotIncludeIds: async (array) => {
+    return (await Video.findAll({
+        where:{
+            id: {[Op.notIn]: array}
+        },
+        include: [
+            {
+                model: User,
+                as: 'author'
+            },
+            {
+                model: VideoCategory,
+                as: 'category'
+            }
+        ],
+        attributes:{
+            include:[
+                [literal('(SELECT COUNT(*) FROM `Views` WHERE `Views`.`video_id` = `Video`.`id`)'), 'views']
+            ]
+        },
+        order:[
+            ["createdAt", "DESC"]
+        ]
+    }));
+},
 };
