@@ -27,7 +27,24 @@ module.exports = {
         }));
     },
 
-    getAllChats: async (user_id, str = '') => {
+    getAllChats: async (user_id, str = '', filter = 'all') => {
+        let having = {
+            'lastMessage': {[Op.ne]: null}
+        }
+        switch (filter){
+            case 'notRead':
+                having = {
+                    'notView': {[Op.gte]: 1},
+                    'lastMessage': {[Op.ne]: null}
+                }
+                break;
+            case 'read':
+                having = {
+                    'notView': {[Op.eq]: 0},
+                    'lastMessage': {[Op.ne]: null}
+                }
+                break;
+        }
         return (await Chat.findAll({
             where: {
                 [Op.or]: [
@@ -70,7 +87,8 @@ module.exports = {
                     [literal('(SELECT `Messages`.`message` FROM `Messages` WHERE `Messages`.`chat_id` = `Chat`.`id` ORDER BY `Messages`.`createdAt` DESC limit 1)'), 'lastMessage'],
                     [literal('(SELECT `Messages`.`createdAt` FROM `Messages` WHERE `Messages`.`chat_id` = `Chat`.`id` ORDER BY `Messages`.`createdAt` DESC limit 1)'), 'lastMessageDate']
                 ]
-            }
+            },
+            having
         }));
     },
 };

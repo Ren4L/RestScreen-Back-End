@@ -174,6 +174,7 @@ module.exports = {
             video.dataValues.likes = (await viewModel.getAll(video_id, true)).length;
             video.dataValues.dislikes = (await viewModel.getAll(video_id, false)).length;
             video.dataValues.views = (await viewModel.getAll(video_id)).length;
+            video.dataValues.comments = (await commentModel.getAll(video_id)).length;
             res.status(200).json(video);
         } catch (e) {
             next(e);

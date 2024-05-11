@@ -56,7 +56,30 @@ module.exports = {
             res.status(200).json(chats);
         }
         catch (e) {
-            Log.info(e)
+            next(e);
+        }
+    },
+    getNotReadChats: async (req, res, next) => {
+        try{
+            const validator = new UserValidator({user_id: +req.params?.user_id}, {user_id: ["notNull", "number"]});
+            if (validator.errors.length)
+                throw ApiError.BadRequest(validator.errors, "[ChatController]");
+            const chats = await chatModel.getAllChats(+req.params?.user_id, req.query?.str, 'notRead');
+            res.status(200).json(chats);
+        }
+        catch (e) {
+            next(e);
+        }
+    },
+    getReadChats: async (req, res, next) => {
+        try{
+            const validator = new UserValidator({user_id: +req.params?.user_id}, {user_id: ["notNull", "number"]});
+            if (validator.errors.length)
+                throw ApiError.BadRequest(validator.errors, "[ChatController]");
+            const chats = await chatModel.getAllChats(+req.params?.user_id, req.query?.str, 'read');
+            res.status(200).json(chats);
+        }
+        catch (e) {
             next(e);
         }
     },

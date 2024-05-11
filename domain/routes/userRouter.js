@@ -24,6 +24,7 @@ userRouter.get("/links/:id", authMiddleware, userController.getLinks);
 userRouter.get('/friends/:id', authMiddleware, friendController.getFriends)
 userRouter.get('/friends/:id/:text', authMiddleware, friendController.getFriendsByText)
 userRouter.get('/requests/:id', authMiddleware, friendController.getRequests)
+userRouter.get('/requests/:id/:text', authMiddleware, friendController.getRequestsByText)
 userRouter.post('/request',  authMiddleware, friendController.createRequest)
 userRouter.put('/request/status', authMiddleware, friendController.updateStatusFriend)
 userRouter.delete('/request', authMiddleware, friendController.deleteRequest)
@@ -33,6 +34,8 @@ userRouter.get('/chat/:user_id_1/:user_id_2', authMiddleware, chatController.get
 userRouter.get('/messages/:id', authMiddleware, chatController.getAllMessage);
 userRouter.put('/message/view', authMiddleware, chatController.updateView);
 userRouter.get('/chats/:user_id', chatController.getAllChats);
+userRouter.get('/notreadchats/:user_id', chatController.getNotReadChats);
+userRouter.get('/readchats/:user_id', chatController.getReadChats);
 
 
 module.exports = userRouter;

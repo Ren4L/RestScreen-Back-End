@@ -30,6 +30,15 @@ module.exports = {
             next(e);
         }
     },
+    getRequestsByText: async (req, res, next) => {
+        try{
+            const friends = await friendModel.findRequestsByUserIdAndText(+req?.params?.id, req?.params?.text);
+            res.status(200).json(friends);
+        }
+        catch (e) {
+            next(e);
+        }
+    },
     createRequest: async (req, res, next) => {
         try{
             const { user_id_1, user_id_2 } = req?.body;

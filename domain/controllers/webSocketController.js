@@ -38,6 +38,10 @@ module.exports = {
                 webSocketServer.rooms[message.room_id].messages.unshift(message)
                 this.broadcastMessage(message, message.room_id, webSocketServer)
                 break;
+            case "change_video":
+                webSocketServer.rooms[message.room_id].video_id = message.video_id;
+                this.broadcastMessage(message, message.room_id, webSocketServer)
+                break;
             case "save":
                 webSocketServer.rooms[message.room_id].timeCode = message.timeCode;
                 break;

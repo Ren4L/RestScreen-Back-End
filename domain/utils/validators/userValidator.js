@@ -27,7 +27,7 @@ module.exports = class UserValidator extends Validator {
     description(description){
         if (typeof description !== "string")
             !this.errors.includes("Error.notString") ? this.errors.push("Error.notString") : this.errors;
-        else if (!description.match(/^[а-яА-Яa-zA-Z0-9\s?!,.'"Ёё():;]{8,}$/))
+        else if (!description.match(/^[а-яА-Яa-zA-Z0-9\s?!,.'"Ёё():;]{8,300}$/))
             this.errors.push("Error.editDescription");
     }
 

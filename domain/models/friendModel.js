@@ -73,6 +73,30 @@ module.exports = {
         }));
     },
 
+    findRequestsByUserIdAndText: async (id, text) => {
+        return (await Friend.findAll({
+            where: {
+                is_friend: false,
+                user_id_2: id
+            },
+            include: [
+                {
+                    model: User,
+                    as: 'user_1',
+                    where: {
+                        [Op.or]:[
+                            {nickname: {[Op.like]: `%${text}%`}},
+                        ]
+                    }
+                },
+                {
+                    model: User,
+                    as: 'user_2'
+                }
+            ]
+        }));
+    },
+
     findByUsersId: async (user_id_1, user_id_2) => {
         return (await Friend.findAll({
             where: {
