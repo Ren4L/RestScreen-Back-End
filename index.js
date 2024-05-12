@@ -23,6 +23,10 @@ app.use("/api", Router);
 app.use(ErrorMiddleware);
 app.use('/public', express.static('public'));
 
+app.get('/', (req, res) => {
+    res.send("Test");
+})
+
 const server = http.createServer(app);
 const webSocketServer = new WebSocket.Server({ server });
 webSocketServer.rooms = {};
