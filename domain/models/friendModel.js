@@ -132,10 +132,11 @@ module.exports = {
         }))[0];
     },
 
-    deleteRequest: async (id) => {
+    deleteRequest: async (user_id_1, user_id_2) => {
         return (await Friend.destroy({
             where:{
-                id
+                user_id_1,
+                user_id_2,
             }
         }));
     },

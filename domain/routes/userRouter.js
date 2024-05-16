@@ -27,7 +27,7 @@ userRouter.get('/requests/:id', authMiddleware, friendController.getRequests)
 userRouter.get('/requests/:id/:text', authMiddleware, friendController.getRequestsByText)
 userRouter.post('/request',  authMiddleware, friendController.createRequest)
 userRouter.put('/request/status', authMiddleware, friendController.updateStatusFriend)
-userRouter.delete('/request', authMiddleware, friendController.deleteRequest)
+userRouter.delete('/request/:user_id_1/:user_id_2', authMiddleware, friendController.deleteRequest)
 userRouter.get('/friend/check/:user_1/:user_2', authMiddleware, friendController.checkFriend)
 
 userRouter.get('/chat/:user_id_1/:user_id_2', authMiddleware, chatController.getOrCreateChat);

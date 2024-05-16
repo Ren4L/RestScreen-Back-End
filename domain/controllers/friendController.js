@@ -75,11 +75,11 @@ module.exports = {
     },
     deleteRequest: async (req, res, next) => {
         try{
-            const id = req?.params?.id;
-            const validator = new UserValidator(req?.params, {id: ["notNull", "number"]});
+            const {user_id_1, user_id_2} = req?.params;
+            const validator = new UserValidator({user_id_1: +user_id_1, user_id_2: +user_id_2}, {user_id_1: ["notNull", "number"], user_id_2: ["notNull", "number"]});
             if (validator.errors.length)
                 throw ApiError.BadRequest(validator.errors, "[FriendController]");
-            const requests = await friendModel.deleteRequest(id);
+            const requests = await friendModel.deleteRequest(user_id_1, user_id_2);
             res.status(200).json(requests);
         }
         catch (e) {
