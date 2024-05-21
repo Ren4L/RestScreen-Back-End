@@ -95,10 +95,14 @@ module.exports = {
                 });
             if (validator.errors.length)
                 throw ApiError.BadRequest(validator.errors, "[VideoController]");
+            if (req?.files?.video?.mimetype != "video/mp4")
+                throw ApiError.BadRequest(['Video.notFormat'], "[VideoController]");
             if (!data?.poster?.data) {
                 data.poster = null;
             }
             else {
+                if (!req.files.poster.mimetype.includes('image'))
+                    throw ApiError.BadRequest(['Video.notImage'], "[VideoController]");
                 data.poster =`/public/poster/${uuidv4()}${req.files.poster.name.slice(req.files.poster.name.lastIndexOf('.'))}`;
                 await req.files.poster.mv('.' + data.poster);
                 data.poster = process.env.DOMAIN + data.poster;

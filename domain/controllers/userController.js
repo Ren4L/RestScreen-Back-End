@@ -164,6 +164,8 @@ module.exports = {
             if (!data?.icon?.data)
                 data.icon = null;
             else{
+                if (!req.files.icon.mimetype.includes('image'))
+                    throw ApiError.BadRequest(['Profile.notImageLink'], "[UserController]");
                 data.icon =`/public/icon/${uuidv4()}${req.files.icon.name.slice(req.files.icon.name.lastIndexOf('.'))}`;
                 await req.files.icon.mv('.' + data.icon);
                 data.icon = process.env.DOMAIN + data.icon;
@@ -203,6 +205,8 @@ module.exports = {
             const validator = new UserValidator(data, {user_id: ["notNull", "number"], image: ["notNull"], column: ["notNull", "string"]});
             if (validator.errors.length)
                 throw ApiError.BadRequest(validator.errors, "[UserController]");
+            if (!req.files.image.mimetype.includes('image'))
+                throw ApiError.BadRequest(['Profile.notImage'], "[UserController]");
             data.image =`/public/image/${uuidv4()}${req.files.image.name.slice(req.files.image.name.lastIndexOf('.'))}`;
             await req.files.image.mv('.' + data.image);
             const user = await userModel.editOneColumn(data.user_id, data.column, process.env.DOMAIN + data.image);
