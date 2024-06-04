@@ -286,6 +286,7 @@ module.exports = {
             const favourites = await favouriteModel.getAll(+req.params?.user_id);
             res.status(200).json(favourites);
         } catch (e) {
+            console.log(e)
             next(e);
         }
     },

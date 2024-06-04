@@ -20,11 +20,11 @@ module.exports = {
     login: async ({email, password}) => {
         let user = await User.findOne({where:{email}});
         if (!user?.email)
-            throw ApiError.BadRequest(["Error.WrongLoginOrPassword"], "[UserController]");
+            throw ApiError.BadRequest(["Error.wrongLoginOrPassword"], "[UserController]");
         if (!user.password)
             throw ApiError.BadRequest(["Error.regByGoogle"], "[UserController]");
         if (!(await bcrypt.compare(password + user?.salt, user?.password)))
-            throw ApiError.BadRequest(["Error.WrongLoginOrPassword"], "[UserController]");
+            throw ApiError.BadRequest(["Error.wrongLoginOrPassword"], "[UserController]");
         return user;
     },
 

@@ -1,4 +1,5 @@
 const {Favourite, Video, VideoCategory, User} = require("#db/models/index");
+const {literal} = require("sequelize");
 module.exports = {
     getAll: async (user_id) => {
         return (await Favourite.findAll({
@@ -18,7 +19,12 @@ module.exports = {
                             model: User,
                             as: 'author'
                         },
-                    ]
+                    ],
+                    attributes:{
+                        include:[
+                            [literal('(SELECT COUNT(*) FROM `Views` WHERE `Views`.`video_id` = `video`.`id`)'), 'views']
+                        ]
+                    },
                 },
             ],
         }));
